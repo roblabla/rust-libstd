@@ -1,0 +1,138 @@
+#[link(name = "std",
+       vers = "0.1",
+       uuid = "122bed0b-c19b-4b82-b0b7-7ae8aead7297",
+       url = "http://rust-lang.org/src/std")];
+
+#[comment = "The Rust standard library"];
+#[license = "BSD"];
+
+
+export box, char, float, int, str, ptr;
+export uint, u8, u32, u64, vec, bool;
+export comm, fs, io, net, run, sys, task, uv;
+export c_vec, ctypes, either, option, result, four, tri, util;
+export bitv, deque, fun_treemap, list, map, smallintmap, sort, treemap, ufind;
+export rope;
+export math, math_f32, math_f64;
+export ebml, dbg, getopts, json, rand, sha1, term, time, unsafe;
+export extfmt, test, tempfile;
+// FIXME: generic_os and os_fs shouldn't be exported
+export generic_os, os, os_fs;
+
+
+// Built-in types support modules
+
+mod box;
+mod char;
+mod float;
+mod int;
+mod str;
+mod ptr;
+mod uint;
+mod u8;
+mod u32;
+mod u64;
+mod bool;
+mod vec;
+
+
+// General io and system-services modules
+
+mod comm;
+mod fs;
+mod io;
+mod net;
+#[path =  "run_program.rs"]
+mod run;
+mod sys;
+mod task;
+mod uv;
+
+
+// Utility modules
+
+mod c_vec;
+mod ctypes;
+mod cmath; /* unexported */
+mod either;
+mod option;
+mod result;
+mod four;
+mod tri;
+mod util;
+
+
+// Collections
+
+mod bitv;
+mod deque;
+mod fun_treemap;
+mod list;
+mod map;
+mod rope;
+mod smallintmap;
+mod sort;
+mod treemap;
+mod ufind;
+
+
+// And ... other stuff
+
+mod ebml;
+mod dbg;
+mod getopts;
+mod json;
+mod math;
+mod math_f32;
+mod math_f64;
+mod rand;
+mod sha1;
+mod tempfile;
+mod term;
+mod time;
+mod unsafe;
+
+#[cfg(unicode)]
+mod unicode;
+
+
+// Compiler support modules
+
+mod extfmt;
+mod test;
+
+
+// Target-os module.
+
+// TODO: Have each os module re-export everything from genericos.
+mod generic_os;
+
+#[cfg(target_os = "win32")]
+#[path = "win32_os.rs"]
+mod os;
+#[cfg(target_os = "win32")]
+#[path = "win32_fs.rs"]
+mod os_fs;
+
+#[cfg(target_os = "macos")]
+#[path = "macos_os.rs"]
+mod os;
+#[cfg(target_os = "macos")]
+#[path = "posix_fs.rs"]
+mod os_fs;
+
+#[cfg(target_os = "linux")]
+#[path = "linux_os.rs"]
+mod os;
+#[cfg(target_os = "linux")]
+#[path = "posix_fs.rs"]
+mod os_fs;
+
+// Local Variables:
+// mode: rust;
+// fill-column: 78;
+// indent-tabs-mode: nil
+// c-basic-offset: 4
+// buffer-file-coding-system: utf-8-unix
+// compile-command: "make -k -C .. 2>&1 | sed -e 's/\\/x\\//x:\\//g'";
+// End:
