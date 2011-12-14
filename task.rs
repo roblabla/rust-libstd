@@ -146,7 +146,9 @@ time_in_us - maximum number of microseconds to yield control for
 fn sleep(time_in_us: uint) {
     let task = rustrt::rust_get_task();
     let killed = false;
-    log #fmt("yielding for %u us", time_in_us);
+    // FIXME: uncomment this when extfmt is moved to core
+    // in a snapshot.
+    // log #fmt("yielding for %u us", time_in_us);
     rusti::task_sleep(task, time_in_us, killed);
     if killed {
         fail "killed";
@@ -181,7 +183,12 @@ fn join(task_port: joinable_task) -> task_result {
       exit(_id, res) {
         if _id == id {
             ret res
-        } else { fail #fmt["join received id %d, expected %d", _id, id] }
+        } else {
+            // FIXME: uncomment this when extfmt is moved to core
+            // in a snapshot.
+            // fail #fmt["join received id %d, expected %d", _id, id]
+            fail;
+        }
       }
     }
 }
