@@ -237,6 +237,12 @@ impl EventLoop for UvEventLoop {
     }
 }
 
+#[cfg(not(stage0))]
+#[lang = "event_loop_factory"]
+pub extern "C" fn new_loop() -> ~EventLoop {
+    ~UvEventLoop::new() as ~EventLoop
+}
+
 pub struct UvPausibleIdleCallback {
     priv watcher: IdleWatcher,
     priv idle_flag: bool,
