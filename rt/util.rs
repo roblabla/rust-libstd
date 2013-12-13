@@ -15,7 +15,6 @@ use libc;
 use option::{Some, None, Option};
 use os;
 use str::StrSlice;
-use unstable::atomics::{AtomicInt, INIT_ATOMIC_INT, SeqCst};
 use unstable::running_on_valgrind;
 
 // Indicates whether we should perform expensive sanity checks, including rtassert!
@@ -143,14 +142,4 @@ memory and partly incapable of presentation to others.",
     fn abort() -> ! {
         unsafe { libc::abort() }
     }
-}
-
-static mut EXIT_STATUS: AtomicInt = INIT_ATOMIC_INT;
-
-pub fn set_exit_status(code: int) {
-    unsafe { EXIT_STATUS.store(code, SeqCst) }
-}
-
-pub fn get_exit_status() -> int {
-    unsafe { EXIT_STATUS.load(SeqCst) }
 }
