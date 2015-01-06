@@ -32,7 +32,7 @@
 /// # #![allow(unreachable_code)]
 /// panic!();
 /// panic!("this is a terrible mistake!");
-/// panic!(4); // panic with the value of 4 to be collected elsewhere
+/// panic!(4i); // panic with the value of 4 to be collected elsewhere
 /// panic!("this is a {} {message}", "fancy", message = "message");
 /// ```
 #[macro_export]
@@ -73,7 +73,7 @@ macro_rules! panic {
 /// // assert with a custom message
 /// # let x = true;
 /// assert!(x, "x wasn't true!");
-/// # let a = 3; let b = 27;
+/// # let a = 3i; let b = 27i;
 /// assert!(a + b == 30, "a = {}, b = {}", a, b);
 /// ```
 #[macro_export]
@@ -98,8 +98,8 @@ macro_rules! assert {
 /// # Example
 ///
 /// ```
-/// let a = 3;
-/// let b = 1 + 2;
+/// let a = 3i;
+/// let b = 1i + 2i;
 /// assert_eq!(a, b);
 /// ```
 #[macro_export]
@@ -140,7 +140,7 @@ macro_rules! assert_eq {
 /// // assert with a custom message
 /// # let x = true;
 /// debug_assert!(x, "x wasn't true!");
-/// # let a = 3; let b = 27;
+/// # let a = 3i; let b = 27i;
 /// debug_assert!(a + b == 30, "a = {}, b = {}", a, b);
 /// ```
 #[macro_export]
@@ -161,8 +161,8 @@ macro_rules! debug_assert {
 /// # Example
 ///
 /// ```
-/// let a = 3;
-/// let b = 1 + 2;
+/// let a = 3i;
+/// let b = 1i + 2i;
 /// debug_assert_eq!(a, b);
 /// ```
 #[macro_export]
@@ -237,12 +237,40 @@ macro_rules! unimplemented {
 /// ```
 /// format!("test");
 /// format!("hello {}", "world!");
-/// format!("x = {}, y = {y}", 10, y = 30);
+/// format!("x = {}, y = {y}", 10i, y = 30i);
 /// ```
 #[macro_export]
 #[stable]
 macro_rules! format {
     ($($arg:tt)*) => (::std::fmt::format(format_args!($($arg)*)))
+}
+
+/// Use the `format!` syntax to write data into a buffer of type `&mut Writer`.
+/// See `std::fmt` for more information.
+///
+/// # Example
+///
+/// ```
+/// # #![allow(unused_must_use)]
+///
+/// let mut w = Vec::new();
+/// write!(&mut w, "test");
+/// write!(&mut w, "formatted {}", "arguments");
+/// ```
+#[macro_export]
+#[stable]
+macro_rules! write {
+    ($dst:expr, $($arg:tt)*) => ((&mut *$dst).write_fmt(format_args!($($arg)*)))
+}
+
+/// Equivalent to the `write!` macro, except that a newline is appended after
+/// the message is written.
+#[macro_export]
+#[stable]
+macro_rules! writeln {
+    ($dst:expr, $fmt:expr $($arg:tt)*) => (
+        write!($dst, concat!($fmt, "\n") $($arg)*)
+    )
 }
 
 /// Equivalent to the `println!` macro except that a newline is not printed at
@@ -277,13 +305,21 @@ macro_rules! println {
 #[macro_export]
 macro_rules! try {
     ($expr:expr) => ({
-        use $crate::result::Result::{Ok, Err};
-
         match $expr {
             Ok(val) => val,
-            Err(err) => return Err($crate::error::FromError::from_error(err)),
+            Err(err) => return Err(::std::error::FromError::from_error(err))
         }
     })
+}
+
+/// Create a `std::vec::Vec` containing the arguments.
+#[macro_export]
+macro_rules! vec {
+    ($($x:expr),*) => ({
+        let xs: ::std::boxed::Box<[_]> = box [$($x),*];
+        ::std::slice::SliceExt::into_vec(xs)
+    });
+    ($($x:expr,)*) => (vec![$($x),*])
 }
 
 /// A macro to select an event from a number of receivers.
@@ -301,7 +337,7 @@ macro_rules! try {
 /// let (tx1, rx1) = channel();
 /// let (tx2, rx2) = channel();
 /// # fn long_running_task() {}
-/// # fn calculate_the_answer() -> int { 42 }
+/// # fn calculate_the_answer() -> int { 42i }
 ///
 /// Thread::spawn(move|| { long_running_task(); tx1.send(()) }).detach();
 /// Thread::spawn(move|| { tx2.send(calculate_the_answer()) }).detach();
@@ -321,7 +357,7 @@ macro_rules! select {
     (
         $($name:pat = $rx:ident.$meth:ident() => $code:expr),+
     ) => ({
-        use $crate::sync::mpsc::Select;
+        use std::sync::mpsc::Select;
         let sel = Select::new();
         $( let mut $rx = sel.handle(&$rx); )+
         unsafe {
@@ -470,7 +506,7 @@ pub mod builtin {
     /// # Example
     ///
     /// ```
-    /// let s = concat!("test", 10, 'b', true);
+    /// let s = concat!("test", 10i, 'b', true);
     /// assert_eq!(s, "test10btrue");
     /// ```
     #[macro_export]
